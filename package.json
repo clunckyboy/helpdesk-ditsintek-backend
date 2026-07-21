@@ -3,14 +3,18 @@
   "version": "1.0.0",
   "description": "backend app for ditsintek helpdesk",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start-dev": "nodemon ./src/index.js",
+    "start:prod": "node ./src/server.js",
+    "migrate": "node-pg-migrate"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "nanoid": "^6.0.0",
     "node-pg-migrate": "^8.0.4",
     "pg": "^8.22.0"
