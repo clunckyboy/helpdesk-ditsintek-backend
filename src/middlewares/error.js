@@ -1,5 +1,6 @@
 import response from '../utils/response.js';
-import { ClientError } from '../exceptions/index.js';
+import ClientError  from '../exceptions/client-error.js';
+import NotFoundError from '../exceptions/not-found-error.js';
 
 const ErrorHandler = (err, req, res, next) => {
   if (err instanceof ClientError) {
