@@ -27,7 +27,7 @@ export const getAllUsers = async (req, res, next) => {
 
 export const getUserById = async (req, res, next) => {
   const { id } = req.params;
-  const { user } = await UserRepositories.getUserById(id);
+  const user = await UserRepositories.getUserById(id);
 
   if (!user) {
     return next(new NotFoundError('User tidak ditemukan'));
@@ -45,7 +45,7 @@ export const updateUserById = async (req, res, next) => {
   }
 
   const { name, username, password, role } = { ...oldUserData, ...req.validated };
-  const userId = await UserRepositories.updateUserByid(id, name, username, password, role);
+  const userId = await UserRepositories.updateUserById(id, name, username, password, role);
 
   if (!userId) {
     return next(new InvariantError('User gagal diupdate'));

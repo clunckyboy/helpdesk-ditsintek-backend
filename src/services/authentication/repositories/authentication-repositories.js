@@ -8,7 +8,7 @@ class AuthenticationRepositories {
 
   async addRefreshToken(token) {
     const query = {
-      text: 'INSERT INTO authentications VALUES($1)',
+      text: 'INSERT INTO authentication VALUES($1)',
       values: [token],
     };
 
@@ -17,7 +17,7 @@ class AuthenticationRepositories {
 
   async deleteRefreshToken(token) {
     const query = {
-      text: 'DELETE FROM authentications WHERE token = $1',
+      text: 'DELETE FROM authentication WHERE token = $1',
       values: [token],
     };
 
@@ -26,7 +26,7 @@ class AuthenticationRepositories {
 
   async verifyRefreshToken(token) {
     const query = {
-      text: 'SELECT token FROM authentications WHERE token = $1',
+      text: 'SELECT token FROM authentication WHERE token = $1',
       values: [token],
     };
 

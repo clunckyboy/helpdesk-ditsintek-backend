@@ -39,7 +39,7 @@ class UserRepositories {
   async updateUserById(id, name, username, password, role) {
     const query = {
       text: 'UPDATE "user" SET name = $1, username = $2, password = $3, role = $4 WHERE id_user = $5 RETURNING id_user',
-      values: [name, username, password, role],
+      values: [name, username, password, role, id],
     };
 
     const user = await this.pool.query(query);
@@ -47,7 +47,7 @@ class UserRepositories {
   }
 
   async deleteUserById(id) {
-    const user = await this.pool.query(`DELETE FROM "user" WHERE id_user = ${id} RETURNING id_user`);
+    const user = await this.pool.query(`DELETE FROM "user" WHERE id_user = $1 RETURNING id_user`, [id]);
     return user.rows[0];
   }
 
