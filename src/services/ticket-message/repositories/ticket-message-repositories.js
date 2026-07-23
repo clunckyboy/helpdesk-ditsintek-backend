@@ -22,6 +22,16 @@ class TicketMessageRepositories {
     const messageId = await this.pool.query(query);
     return messageId.rows[0];
   }
+
+  async getMessagesByTicketId(id_ticket) {
+    const query = {
+      text: 'SELECT * FROM ticket_message WHERE id_ticket = $1',
+      values: [id_ticket]
+    };
+
+    const messages = await this.pool.query(query);
+    return messages.rows;
+  }
 }
 
 export default new TicketMessageRepositories;

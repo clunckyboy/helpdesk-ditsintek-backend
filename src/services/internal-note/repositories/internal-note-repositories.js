@@ -22,6 +22,16 @@ class InternalNoteRepositories {
     const noteId = await this.pool.query(query);
     return noteId.rows[0];
   }
+
+  async getNotesByTicketId(id_ticket) {
+    const query = {
+      text: 'SELECT * FROM internal_note WHERE id_ticket = $1',
+      values: [id_ticket]
+    };
+
+    const notes = await this.pool.query(query);
+    return notes.rows;
+  }
 }
 
 export default new InternalNoteRepositories;

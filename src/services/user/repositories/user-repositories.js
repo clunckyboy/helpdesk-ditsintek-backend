@@ -22,8 +22,8 @@ class UserRepositories {
   }
 
   async getAllUsers() {
-    const result = await this.pool.query('SELECT * FROM "user"');
-    return result.rows;
+    const users = await this.pool.query('SELECT * FROM "user"');
+    return users.rows;
   }
 
   async getUserById(id) {

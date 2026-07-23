@@ -17,3 +17,11 @@ export const createMessage = async (req, res, next) => {
 
   return response(res, 201, 'Pesan berhasil dibuat', messageId);
 }
+
+export const getMessagesByTicketId = async (req, res, next) => {
+  const { id: id_ticket } = req.params;
+
+  const messages = await TicketMessageRepositories.getMessagesByTicketId(id_ticket);
+
+  return response(res, 200, 'Pesan berhasil diambil', messages);
+}
