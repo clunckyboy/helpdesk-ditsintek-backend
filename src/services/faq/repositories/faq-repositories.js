@@ -31,74 +31,55 @@ class FaqRepositories {
     this.pool = pool;
   }
 
+  async createFaq({ question, answer, category, embeddings = null }) {
+    const id = nanoid(16);
+    const query = {
+      text: `
+        INSERT INTO faq (id_faq, question, answer, category, embeddings)
+        VALUES ($1, $2, $3, $4, $5::vector)
+        RETURNING id_faq, question, answer, category, embeddings
+      `,
+      values: [
+        id,
+        question,
+        answer,
+        category,
+        embeddings ? `[${embeddings.join(',')}]` : null,
+      ],
+    };
+
+    const result = await this.pool.query(query);
+    return result.rows[0];
+  }
+
   async searchFaqs(searchQuery, category = null, limit = 5) {
-    // Normalize query for simple keyword matching (fallback when DB unavailable)
-    const queryLower = searchQuery.toLowerCase();
+    const conditions = ['(question ILIKE $1 OR answer ILIKE $1)'];
+    const values = [`%${searchQuery}%`];
 
-    try {
-      // Try database search with vector similarity
-      const conditions = ['TRUE'];
-      const values = [];
-
-      if (category) {
-        values.push(category);
-        conditions.push(`category = $${values.length}`);
-      }
-
-      const whereClause = conditions.join(' AND ');
-
-      const query = {
-        text: `
-          SELECT 
-            id_faq, 
-            question, 
-            answer, 
-            category,
-            1 - (embeddings <=> $1::vector) as similarity
-          FROM faq
-          WHERE ${whereClause}
-          ORDER BY similarity DESC
-          LIMIT $${values.length + 1}
-        `,
-        values: [...values, searchQuery, limit],
-      };
-
-      const result = await this.pool.query(query);
-      return result.rows;
-    } catch (error) {
-      // Fallback to in-memory search with simple keyword matching
-      let results = faqStore;
-
-      if (category) {
-        results = results.filter((f) => f.category === category);
-      }
-
-      // Simple keyword matching using includes for better matching
-      results = results
-        .map((faq) => {
-          const questionLower = faq.question.toLowerCase();
-          const answerLower = faq.answer.toLowerCase();
-          
-          // Check if query is found in question or answer
-          const isInQuestion = questionLower.includes(queryLower);
-          const isInAnswer = answerLower.includes(queryLower);
-          
-          // Calculate basic similarity score (higher is better)
-          let similarity = 0;
-          if (isInQuestion) similarity += 2; // Question match is more important
-          if (isInAnswer) similarity += 1;
-          
-          return {
-            ...faq,
-            similarity,
-          };
-        })
-        .filter((faq) => faq.similarity > 0)
-        .sort((a, b) => b.similarity - a.similarity)
-        .slice(0, limit);
-
-      return results;
+    if (category) {
+      values.push(category);
+      conditions.push(`category = $${values.length}`);
     }
+
+    const whereClause = conditions.join(' AND ');
+
+    const query = {
+      text: `
+        SELECT
+          id_faq,
+          question,
+          answer,
+          category
+        FROM faq
+        WHERE ${whereClause}
+        ORDER BY question ASC
+        LIMIT $${values.length + 1}
+      `,
+      values: [...values, limit],
+    };
+
+    const result = await this.pool.query(query);
+    return result.rows || [];
   }
 
   async getFaqById(id) {

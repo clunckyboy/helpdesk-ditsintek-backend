@@ -1,8 +1,33 @@
 import response from '../../../utils/response.js';
+import InvariantError from '../../../exceptions/invariant-error.js';
 import NotFoundError from '../../../exceptions/not-found-error.js';
 import ClientError from '../../../exceptions/client-error.js';
 import FaqRepositories from '../repositories/faq-repositories.js';
-import { searchFaqPayloadSchema } from '../validator/schema.js';
+import { createFaqPayloadSchema, searchFaqPayloadSchema } from '../validator/schema.js';
+
+export const createFaq = async (req, res, next) => {
+  try {
+    const { error, value } = createFaqPayloadSchema.validate(req.body, {
+      abortEarly: false,
+      allowUnknown: false,
+      stripUnknown: true,
+    });
+
+    if (error) {
+      return next(new ClientError(error.details[0].message, 400));
+    }
+
+    const faq = await FaqRepositories.createFaq(value);
+
+    if (!faq) {
+      return next(new InvariantError('FAQ gagal ditambahkan'));
+    }
+
+    return response(res, 201, 'FAQ berhasil ditambahkan', faq);
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const searchFaqs = async (req, res, next) => {
   try {
@@ -23,7 +48,7 @@ export const searchFaqs = async (req, res, next) => {
     const results = await FaqRepositories.searchFaqs(query, category, limit);
 
     if (results.length === 0) {
-      return response(res, 200, 'Tidak ada FAQ yang cocok dengan pencarian', []);
+      return response(res, 200, 'FAQ berhasil dikembalikan.', []);
     }
 
     return response(res, 200, 'FAQ berhasil ditemukan', results);
