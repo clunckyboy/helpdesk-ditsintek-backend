@@ -1,5 +1,4 @@
 import { Router } from 'express';
-// ... import controller lainnya ...
 import { handleTelegramWebhook, checkTelegramUserStatus } from './webhook-controller.js';
 
 const router = Router();

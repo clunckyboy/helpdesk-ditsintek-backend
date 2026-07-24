@@ -87,7 +87,7 @@ class TicketRepositories {
     const query = {
       text: `
         SELECT * FROM ticket 
-        WHERE telegram_chat_id = $1 AND status IN ('open', 'in_progress', 'resolved) 
+        WHERE telegram_chat_id = $1 AND status IN ('open', 'in_progress', 'resolved') 
         ORDER BY created_at DESC 
         LIMIT 1
       `,
