@@ -82,6 +82,21 @@ class TicketRepositories {
     const result = await this.pool.query(query);
     return result.rows[0];
   }
+
+  async getOpenTicketByTelegramId(telegram_chat_id) {
+    const query = {
+      text: `
+        SELECT * FROM ticket 
+        WHERE telegram_chat_id = $1 AND status IN ('open', 'in_progress', 'resolved) 
+        ORDER BY created_at DESC 
+        LIMIT 1
+      `,
+      values: [telegram_chat_id],
+    };
+
+    const result = await this.pool.query(query);
+    return result.rows[0] || null;
+  }
 }
 
 export default new TicketRepositories();

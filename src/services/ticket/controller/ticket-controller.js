@@ -49,6 +49,7 @@ export const getTicketById = async (req, res, next) => {
 export const updateTicketStatus = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const newStatus = req.validated.status;
     const existingTicket = await TicketRepositories.getTicketById(id);
 
     if (!existingTicket) {
@@ -57,12 +58,32 @@ export const updateTicketStatus = async (req, res, next) => {
 
     const ticketId = await TicketRepositories.updateTicketStatus(
       id,
-      req.validated.status,
+      newStatus,
       req.validated.assigned_to,
     );
 
     if (!ticketId) {
       return next(new InvariantError('Ticket gagal diupdate'));
+    }
+
+    if (newStatus === 'resolved') {
+      const botToken = process.env.TELEGRAM_BOT_TOKEN;
+      const messageText = `Halo! Tim Helpdesk menyampaikan bahwa kendala pada tiket #${id} Anda sudah diperbaiki. Apakah masalah tersebut benar sudah selesai?`;
+
+      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: existingTicket.telegram_chat_id,
+          text: messageText,
+          reply_markup: {
+            inline_keyboard: [[
+              { text: "✅ Sudah Selesai", callback_data: `action_closed_${id}` },
+              { text: "❌ Belum, Masih Error", callback_data: `action_open_${id}` }
+            ]]
+          }
+        })
+      });
     }
 
     return response(res, 200, 'Ticket berhasil diupdate', ticketId);
