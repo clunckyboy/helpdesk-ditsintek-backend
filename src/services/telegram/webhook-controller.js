@@ -41,7 +41,7 @@ export const handleTelegramWebhook = async (req, res, next) => {
     }
 
     // 3. Simpan isi teks mahasiswa ke dalam riwayat obrolan tiket (ticket_message)
-    await TicketMessageRepositories.createMessage({
+    const newMessage = await TicketMessageRepositories.createMessage({
       id_ticket: activeTicket.id_ticket,
       id_user: null, // Null karena pengirimnya bukan staf IT
       sender_type: 'mahasiswa',
@@ -49,6 +49,19 @@ export const handleTelegramWebhook = async (req, res, next) => {
     });
 
     // Selalu kembalikan respons 200 OK dengan cepat agar n8n tidak error timeout
+    // return response(res, 200, 'Webhook berhasil diproses', {
+    //   ticket_id: activeTicket.id_ticket
+    // });
+
+    const io = req.app.get('io');
+
+    io.emit('pesan_baru', {
+      id_ticket: activeTicket.id_ticket,
+      sender_type: 'mahasiswa',
+      message_text: description,
+      created_at: new Date()
+    });
+
     return response(res, 200, 'Webhook berhasil diproses', {
       ticket_id: activeTicket.id_ticket
     });
