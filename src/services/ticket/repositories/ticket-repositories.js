@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid';
 import pool from '../../../utils/database.js';
 
 class TicketRepositories {
@@ -7,16 +6,14 @@ class TicketRepositories {
   }
 
   async createTicket(payload) {
-    const id = nanoid(16);
     const query = {
       text: `
         INSERT INTO ticket (
-          id_ticket, telegram_chat_id, reporter, reporter_role, nim_nip, description, status, category, assigned_to
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          telegram_chat_id, reporter, reporter_role, nim_nip, description, status, category, assigned_to
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING id_ticket
       `,
       values: [
-        id,
         payload.telegram_chat_id,
         payload.reporter,
         payload.reporter_role || null,
