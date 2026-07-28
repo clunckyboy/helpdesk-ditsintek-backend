@@ -11,6 +11,12 @@ export const createFaqPayloadSchema = Joi.object({
   embeddings: embeddingSchema.optional(),
 });
 
+export const updateFaqPayloadSchema = Joi.object({
+  question: Joi.string().optional(),
+  answer: Joi.string().optional(),
+  category: Joi.string().max(50).optional(),
+}).min(1);
+
 export const searchFaqPayloadSchema = Joi.object({
   query: Joi.string().min(1).required(),
   category: Joi.string().optional(),

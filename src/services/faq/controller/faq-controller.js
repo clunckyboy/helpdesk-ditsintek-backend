@@ -3,7 +3,8 @@ import InvariantError from '../../../exceptions/invariant-error.js';
 import NotFoundError from '../../../exceptions/not-found-error.js';
 import ClientError from '../../../exceptions/client-error.js';
 import FaqRepositories from '../repositories/faq-repositories.js';
-import { createFaqPayloadSchema, searchFaqPayloadSchema } from '../validator/schema.js';
+import { generateFaqEmbeddings } from '../utils/embedding-helper.js';
+import { createFaqPayloadSchema, searchFaqPayloadSchema, updateFaqPayloadSchema } from '../validator/schema.js';
 
 export const createFaq = async (req, res, next) => {
   try {
@@ -17,7 +18,8 @@ export const createFaq = async (req, res, next) => {
       return next(new ClientError(error.details[0].message, 400));
     }
 
-    const faq = await FaqRepositories.createFaq(value);
+    const embeddings = await generateFaqEmbeddings(value.question, value.answer);
+    const faq = await FaqRepositories.createFaq({ ...value, embeddings });
 
     if (!faq) {
       return next(new InvariantError('FAQ gagal ditambahkan'));
@@ -67,6 +69,46 @@ export const getFaqById = async (req, res, next) => {
     }
 
     return response(res, 200, 'FAQ berhasil diambil', faq);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateFaqById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { error, value } = updateFaqPayloadSchema.validate(req.body, {
+      abortEarly: false,
+      allowUnknown: false,
+      stripUnknown: true,
+    });
+
+    if (error) {
+      return next(new ClientError(error.details[0].message, 400));
+    }
+
+    const existingFaq = await FaqRepositories.getFaqById(id);
+
+    if (!existingFaq) {
+      return next(new NotFoundError('FAQ tidak ditemukan'));
+    }
+
+    const mergedFaq = {
+      ...existingFaq,
+      ...value,
+    };
+
+    const embeddings = await generateFaqEmbeddings(mergedFaq.question, mergedFaq.answer);
+    const updatedFaq = await FaqRepositories.updateFaqById(id, {
+      ...mergedFaq,
+      embeddings,
+    });
+
+    if (!updatedFaq) {
+      return next(new InvariantError('FAQ gagal diupdate'));
+    }
+
+    return response(res, 200, 'FAQ berhasil diupdate', updatedFaq);
   } catch (error) {
     next(error);
   }

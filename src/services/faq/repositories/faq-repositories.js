@@ -52,6 +52,30 @@ class FaqRepositories {
     return result.rows[0];
   }
 
+  async updateFaqById(id, { question, answer, category, embeddings = null }) {
+    const query = {
+      text: `
+        UPDATE faq
+        SET question = $1,
+            answer = $2,
+            category = $3,
+            embeddings = $4::vector
+        WHERE id_faq = $5
+        RETURNING id_faq, question, answer, category, embeddings
+      `,
+      values: [
+        question,
+        answer,
+        category,
+        embeddings ? `[${embeddings.join(',')}]` : null,
+        id,
+      ],
+    };
+
+    const result = await this.pool.query(query);
+    return result.rows[0] || null;
+  }
+
   async searchFaqs(searchQuery, category = null, limit = 5) {
     const conditions = ['(question ILIKE $1 OR answer ILIKE $1)'];
     const values = [`%${searchQuery}%`];
