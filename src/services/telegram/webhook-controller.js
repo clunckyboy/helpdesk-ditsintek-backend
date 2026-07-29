@@ -44,7 +44,7 @@ export const handleTelegramWebhook = async (req, res, next) => {
     const newMessage = await TicketMessageRepositories.createMessage({
       id_ticket: activeTicket.id_ticket,
       id_user: null, // Null karena pengirimnya bukan staf IT
-      sender_type: 'mahasiswa',
+      sender_type: 'pelapor',
       message_text: description
     });
 
@@ -57,7 +57,7 @@ export const handleTelegramWebhook = async (req, res, next) => {
 
     io.emit('pesan_baru', {
       id_ticket: activeTicket.id_ticket,
-      sender_type: 'mahasiswa',
+      sender_type: 'pelapor',
       message_text: description,
       created_at: new Date()
     });
