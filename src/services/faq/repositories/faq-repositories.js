@@ -147,6 +147,28 @@ class FaqRepositories {
       return results;
     }
   }
+
+  async deleteFaqById(id) {
+    try {
+      const query = {
+        text: 'DELETE FROM faq WHERE id_faq = $1 RETURNING id_faq, question, answer, category, embeddings',
+        values: [id],
+      };
+
+      const result = await this.pool.query(query);
+      return result.rows[0] || null;
+    } catch (error) {
+      // Fallback to in-memory store
+      const faqIndex = faqStore.findIndex((f) => f.id_faq === id);
+
+      if (faqIndex === -1) {
+        return null;
+      }
+
+      const [deletedFaq] = faqStore.splice(faqIndex, 1);
+      return deletedFaq;
+    }
+  }
 }
 
 export default new FaqRepositories();

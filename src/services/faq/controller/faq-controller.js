@@ -124,3 +124,18 @@ export const getAllFaqs = async (req, res, next) => {
     next(error);
   }
 };
+
+export const deleteFaqById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const deletedFaq = await FaqRepositories.deleteFaqById(id);
+
+    if (!deletedFaq) {
+      return next(new NotFoundError('FAQ tidak ditemukan'));
+    }
+
+    return response(res, 200, 'FAQ berhasil dihapus', deletedFaq);
+  } catch (error) {
+    next(error);
+  }
+};
