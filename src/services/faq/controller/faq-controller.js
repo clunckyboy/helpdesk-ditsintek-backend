@@ -47,7 +47,9 @@ export const searchFaqs = async (req, res, next) => {
     let { query, category, limit } = value;
     limit = limit ? parseInt(limit, 10) : 5;
 
-    const results = await FaqRepositories.searchFaqs(query, category, limit);
+    const queryEmbedding = await generateFaqEmbeddings(query, "");
+
+    const results = await FaqRepositories.searchFaqs(queryEmbedding, category, limit);
 
     if (results.length === 0) {
       return response(res, 200, 'FAQ berhasil dikembalikan.', []);

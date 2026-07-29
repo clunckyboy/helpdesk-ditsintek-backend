@@ -76,30 +76,25 @@ class FaqRepositories {
     return result.rows[0] || null;
   }
 
-  async searchFaqs(searchQuery, category = null, limit = 5) {
-    const conditions = ['(question ILIKE $1 OR answer ILIKE $1)'];
-    const values = [`%${searchQuery}%`];
+  async searchFaqs(queryEmbedding, category = null, limit = 5) {
+    let queryText = `
+      SELECT id_faq, question, answer, category
+      FROM faq
+    `;
+    const values = [`[${queryEmbedding.join(',')}]`];
 
     if (category) {
+      queryText += ` WHERE category = $2`;
       values.push(category);
-      conditions.push(`category = $${values.length}`);
     }
 
-    const whereClause = conditions.join(' AND ');
+    // Gunakan <=> untuk mencari vektor yang paling mirip (Cosine Distance)
+    queryText += ` ORDER BY embeddings <=> $1::vector LIMIT $${values.length + 1}`;
+    values.push(limit);
 
     const query = {
-      text: `
-        SELECT
-          id_faq,
-          question,
-          answer,
-          category
-        FROM faq
-        WHERE ${whereClause}
-        ORDER BY question ASC
-        LIMIT $${values.length + 1}
-      `,
-      values: [...values, limit],
+      text: queryText,
+      values: values,
     };
 
     const result = await this.pool.query(query);
