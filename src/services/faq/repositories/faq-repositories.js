@@ -59,7 +59,7 @@ class FaqRepositories {
         SET question = $1,
             answer = $2,
             category = $3,
-            embeddings = $4::vector
+            embeddings = COALESCE($4::vector, embeddings)
         WHERE id_faq = $5
         RETURNING id_faq, question, answer, category, embeddings
       `,

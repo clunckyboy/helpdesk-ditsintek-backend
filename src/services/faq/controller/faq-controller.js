@@ -98,7 +98,14 @@ export const updateFaqById = async (req, res, next) => {
       ...value,
     };
 
-    const embeddings = await generateFaqEmbeddings(mergedFaq.question, mergedFaq.answer);
+    const shouldRegenerateEmbeddings = Object.prototype.hasOwnProperty.call(value, 'question')
+      || Object.prototype.hasOwnProperty.call(value, 'answer');
+
+    let embeddings = null;
+    if (shouldRegenerateEmbeddings) {
+      embeddings = await generateFaqEmbeddings(mergedFaq.question, mergedFaq.answer);
+    }
+
     const updatedFaq = await FaqRepositories.updateFaqById(id, {
       ...mergedFaq,
       embeddings,
