@@ -1,6 +1,7 @@
-const apiKey = process.env.GEMINI_API_KEY;
 const embeddingModel = process.env.GEMINI_EMBEDDING_MODEL || 'gemini-embedding-001';
 const outputDimensionality = 768;
+
+const getApiKey = () => process.env.GEMINI_API_KEY?.trim();
 
 const normalizeEmbedding = (values) => {
   const magnitude = Math.sqrt(values.reduce((sum, value) => sum + (value * value), 0));
@@ -13,6 +14,8 @@ const normalizeEmbedding = (values) => {
 };
 
 export const generateFaqEmbeddings = async (question, answer) => {
+  const apiKey = getApiKey();
+
   if (!apiKey) {
     throw new Error('GEMINI_API_KEY belum dikonfigurasi');
   }
