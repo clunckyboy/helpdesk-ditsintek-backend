@@ -6,6 +6,11 @@ class TicketRepositories {
   }
 
   async createTicket(payload) {
+
+    const admin = await this.pool.query(`
+      SELECT id_user FROM user WHERE role = "admin" LIMIT 1
+    `);
+
     const query = {
       text: `
         INSERT INTO ticket (
@@ -21,7 +26,7 @@ class TicketRepositories {
         payload.description,
         payload.status || 'open',
         payload.category,
-        payload.assigned_to || null,
+        payload.assigned_to || admin.rows[0] || null, 
       ],
     };
 
