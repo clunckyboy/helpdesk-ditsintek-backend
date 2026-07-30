@@ -68,7 +68,7 @@ export const updateTicketStatus = async (req, res, next) => {
 
     if (newStatus === 'resolved') {
       const botToken = process.env.TELEGRAM_BOT_TOKEN;
-      const messageText = `Halo! Tim Helpdesk menyampaikan bahwa kendala pada tiket #${id} Anda sudah diperbaiki. Apakah masalah tersebut benar sudah selesai?`;
+      const messageText = `Halo! Tim Helpdesk menyampaikan bahwa kendala/masalah Anda sudah diperbaiki. Apakah masalah tersebut benar sudah selesai?`;
 
       await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: 'POST',
