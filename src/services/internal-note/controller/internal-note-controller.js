@@ -19,7 +19,7 @@ export const createNote = async (req, res, next) => {
 export const getNotesByTicketId = async (req, res, next) => {
   const { id: id_ticket } = req.params;
 
-  const notes = await InternalNoteRepositories.getNotesById(id_ticket);
+  const notes = await InternalNoteRepositories.getNotesByTicketId(id_ticket);
   
   return response(res, 200, 'Catatan berhasil diambil', notes);
 }
