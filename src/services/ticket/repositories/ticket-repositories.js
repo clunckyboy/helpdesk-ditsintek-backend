@@ -8,8 +8,9 @@ class TicketRepositories {
   async createTicket(payload) {
 
     const admin = await this.pool.query(`
-      SELECT id_user FROM user WHERE role = "admin" LIMIT 1
+      SELECT id_user FROM "user" WHERE role = 'admin' LIMIT 1
     `);
+    const adminId = admin.rows.length > 0 ? admin.rows[0].id_user : null;
 
     const query = {
       text: `
@@ -26,7 +27,7 @@ class TicketRepositories {
         payload.description,
         payload.status || 'open',
         payload.category,
-        payload.assigned_to || admin.rows[0] || null, 
+        payload.assigned_to || adminId, 
       ],
     };
 
@@ -41,18 +42,25 @@ class TicketRepositories {
 
     if (status) {
       values.push(status);
-      conditions.push(`status = $${values.length}`);
+      conditions.push(`ticket.status = $${values.length}`);
     }
 
     if (category) {
       values.push(category);
-      conditions.push(`category = $${values.length}`);
+      conditions.push(`ticket.category = $${values.length}`);
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     const query = {
-      text: `SELECT * FROM ticket ${whereClause} ORDER BY created_at DESC`,
+      text: `
+        SELECT 
+          ticket.*,
+          "user".name AS assigned_to_name 
+        FROM ticket 
+        LEFT JOIN "user" ON ticket.assigned_to = "user".id_user
+        ${whereClause}
+        ORDER BY ticket.created_at DESC`,
       values,
     };
 
@@ -62,7 +70,13 @@ class TicketRepositories {
 
   async getTicketById(id) {
     const query = {
-      text: 'SELECT * FROM ticket WHERE id_ticket = $1',
+      text: `
+        SELECT 
+          ticket.*,
+          "user".name AS assigned_to_name
+        FROM ticket
+        LEFT JOIN "user" ON ticket.assigned_to = "user".id_user
+        WHERE ticket.id_ticket = $1`,
       values: [id],
     };
 
