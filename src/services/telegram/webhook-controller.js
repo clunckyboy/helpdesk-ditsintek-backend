@@ -24,17 +24,12 @@ export const handleTelegramWebhook = async (req, res, next) => {
 
     // 2. Jika tidak ada tiket aktif, sistem akan MEMBUAT TIKET BARU
     if (!activeTicket) {
-      // Pastikan payload memiliki kategori sebelum membuat tiket baru
-      if (!category) {
-        return response(res, 400, 'Kategori laporan wajib diisi untuk membuat tiket baru.');
-      }
 
       activeTicket = await TicketRepositories.createTicket({
         telegram_chat_id,
         reporter: reporter || 'Mahasiswa (Unknown)',
         reporter_role: reporter_role || null,
         nim_nip: nim_nip || null,
-        category,
         description,
         status: 'open'
       });

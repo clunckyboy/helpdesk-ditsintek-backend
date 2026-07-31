@@ -15,8 +15,8 @@ class TicketRepositories {
     const query = {
       text: `
         INSERT INTO ticket (
-          telegram_chat_id, reporter, reporter_role, nim_nip, description, status, category, assigned_to
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          telegram_chat_id, reporter, reporter_role, nim_nip, description, status, assigned_to
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING id_ticket
       `,
       values: [
@@ -26,7 +26,6 @@ class TicketRepositories {
         payload.nim_nip || null,
         payload.description,
         payload.status || 'open',
-        payload.category,
         payload.assigned_to || adminId, 
       ],
     };
