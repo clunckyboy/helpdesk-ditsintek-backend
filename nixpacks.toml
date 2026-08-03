@@ -1,2 +1,4 @@
+providers = ["node"]
+
 [phases.setup]
-nixPkgs = ["autossh", "openssh-client"]
+nixPkgs = ["autossh", "openssh"]
