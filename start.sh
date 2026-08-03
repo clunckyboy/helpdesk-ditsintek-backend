@@ -8,10 +8,11 @@ echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
 chmod 600 ~/.ssh/id_rsa
 
 # 3. Agar SSH tidak meminta konfirmasi yes/no
-echo -e "Host *\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+echo -e "Host *\n\tStrictHostKeyChecking no\n\tBatchMode yes\n" >> ~/.ssh/config
 
 # 4. Menyalakan autossh di background
-autossh -M 0 -N -L 5432:127.0.0.1:5432 $SSH_USER@$SSH_HOST > tunnel.log 2>&1 &
+export AUTOSSH_GATETIME=0
+autossh -M 0 -N -v -L 5432:127.0.0.1:5432 $SSH_USER@$SSH_HOST > tunnel.log 2>&1 &
 
 # 5. Memberi jeda 3 detik agar tunnel sempat terbuka
 sleep 3
