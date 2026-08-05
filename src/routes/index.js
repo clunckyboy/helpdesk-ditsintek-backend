@@ -6,6 +6,7 @@ import faqs from '../services/faq/routes/index.js';
 import ticket_message from '../services/ticket-message/routes/index.js';
 import internal_note from '../services/internal-note/routes/index.js';
 import telegram from '../services/telegram/routes.js';
+import ticket_draft from '../services/ticket-draft/routes.js';
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.use('/api', faqs);
 router.use('/api', ticket_message);
 router.use('/api', internal_note);
 router.use('/api', telegram);
+router.use('/api', ticket_draft);
 
 export default router;
