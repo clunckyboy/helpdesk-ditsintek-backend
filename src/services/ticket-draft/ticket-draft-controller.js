@@ -1,5 +1,5 @@
-import response from '../../../utils/response.js';
-import TicketDraftRepositories from '../repositories/ticket-draft-repositories.js';
+import response from '../../utils/response.js';
+import TicketDraftRepositories from './ticket-draft-repositories.js';
 
 export const getDraft = async (req, res, next) => {
   try {
