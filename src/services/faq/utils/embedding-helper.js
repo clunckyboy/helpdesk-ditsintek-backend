@@ -12,7 +12,7 @@ const normalizeEmbedding = (values) => {
   return values.map((value) => value / magnitude);
 };
 
-export const generateFaqEmbeddings = async (question, answer) => {
+export const generateFaqEmbeddings = async (question, answer, taskType = 'RETRIEVAL_DOCUMENT') => {
   const getApiKey = () => process.env.GEMINI_API_KEY?.trim();
   const apiKey = getApiKey();
 
@@ -29,7 +29,7 @@ export const generateFaqEmbeddings = async (question, answer) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        task_type: 'RETRIEVAL_DOCUMENT',
+        task_type: taskType,
         content: {
           parts: [{ text: textToEmbed }],
         },

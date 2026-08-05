@@ -47,7 +47,7 @@ export const searchFaqs = async (req, res, next) => {
     let { query, category, limit } = value;
     limit = limit ? parseInt(limit, 10) : 5;
 
-    const queryEmbedding = await generateFaqEmbeddings(query, "");
+    const queryEmbedding = await generateFaqEmbeddings(query, "", "RETRIEVAL_QUERY");
 
     const results = await FaqRepositories.searchFaqs(queryEmbedding, category, limit);
 
