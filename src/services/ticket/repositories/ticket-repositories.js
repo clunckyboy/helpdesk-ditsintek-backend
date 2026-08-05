@@ -1,4 +1,7 @@
 import pool from '../../../utils/database.js';
+import { customAlphabet } from 'nanoid';
+
+const generateRandomString = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 6);
 
 class TicketRepositories {
   constructor() {
@@ -6,6 +9,8 @@ class TicketRepositories {
   }
 
   async createTicket(payload) {
+
+    const newTicketId = `TKT-${generateRandomString()}`;
 
     const admin = await this.pool.query(`
       SELECT id_user FROM "user" WHERE role = 'admin' LIMIT 1
@@ -15,11 +20,12 @@ class TicketRepositories {
     const query = {
       text: `
         INSERT INTO ticket (
-          telegram_chat_id, reporter, reporter_role, nim_nip, description, status, assigned_to
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+          id_ticket, telegram_chat_id, reporter, reporter_role, nim_nip, description, status, assigned_to
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING id_ticket
       `,
       values: [
+        newTicketId,
         payload.telegram_chat_id,
         payload.reporter,
         payload.reporter_role || null,
