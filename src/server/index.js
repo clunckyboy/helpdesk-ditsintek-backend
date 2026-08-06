@@ -43,7 +43,7 @@ cron.schedule('0 * * * *', async () => {
   try {
     const deletedDrafts = await TicketDraftRepositories.deleteExpiredDrafts(20);
 
-    if (deletedDrafts && deletedDrafts > 0) {
+    if (deletedDrafts && deletedDrafts.length > 0) {
       console.log(`✅ [CRON] Berhasil menghapus ${deletedDrafts.length} draft terbengkalai.`)
     } else {
       console.log('✅ [CRON] Tidak ada draft usang yang perlu dihapus.');
