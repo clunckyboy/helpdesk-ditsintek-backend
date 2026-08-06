@@ -56,6 +56,20 @@ class TicketDraftRepositories {
     const result = await this.pool.query(query);
     return result.rows[0] || null;
   }
+
+  // Fungsi untuk menghapus draft ticket yang lewat dari batas waktu
+  async deleteExpiredDrafts(minutes = 15) {
+    const query = {
+      text: `
+        DELETE FROM ticket_draft
+        WHERE updated_at < NOW() - INTERVAL '${minutes} minutes'
+        RETURNING telegram_chat_id
+      `
+    };
+
+    const result = await this.pool.query(query);
+    return result.rows;
+  }
 }
 
 export default new TicketDraftRepositories();

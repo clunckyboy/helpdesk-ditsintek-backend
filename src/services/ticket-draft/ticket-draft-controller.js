@@ -1,6 +1,8 @@
 import response from '../../utils/response.js';
 import TicketDraftRepositories from './ticket-draft-repositories.js';
 
+const draftTimers = new Map();
+
 export const getDraft = async (req, res, next) => {
   try {
     const { chatId } = req.params;
@@ -27,6 +29,34 @@ export const upsertDraft = async (req, res, next) => {
     }
 
     const draft = await TicketDraftRepositories.upsertDraft(chatId, draftData);
+
+    // TIMER
+    if (!draftTimers.has(chatId)) {
+      // Nyalakan timer hitung mundur
+      const globalTimer = setTimeout(async () => {
+        try {
+          // Saat batas waktu habis, hapus draft dari database
+          await TicketDraftRepositories.deleteDraft(chatId);
+          draftTimers.delete(chatId);
+          const botToken = process.env.TELEGRAM_BOT_TOKEN;
+          const messageText = `Waktu anda habis. Silakan buat tiket baru`;
+
+          await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: messageText,
+            })
+          });
+        } catch (err) {
+          console.error("Gagal menghapus draft saat timeout:", err);
+        }
+      }, 15 * 60 * 1000);
+
+      draftTimers.set(chatId, globalTimer);
+    }
+
     return response(res, 200, 'Draft berhasil diperbarui', draft);
   } catch (error) {
     next(error);
@@ -36,6 +66,12 @@ export const upsertDraft = async (req, res, next) => {
 export const deleteDraft = async (req, res, next) => {
   try {
     const { chatId } = req.params;
+
+    if (draftTimers.has(chatId)) {
+      clearTimeout(draftTimers.get(chatId));
+      draftTimers.delete(chatId);
+    }
+
     const deleted = await TicketDraftRepositories.deleteDraft(chatId);
 
     if (!deleted) {
